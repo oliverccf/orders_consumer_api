@@ -20,13 +20,13 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
-@Profile({"!test"})
+@Profile({"!simple", "!test"})
 public class SecurityConfig {
     
     @Bean
-    @Profile({"!simple", "!test"})
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .securityMatcher("/api/v1/**")
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -36,39 +36,18 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/orders/**").authenticated()
                 .anyRequest().authenticated()
             )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.decoder(jwtDecoder()))
-            );
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
         
         return http.build();
     }
     
     @Bean
-    @Profile("simple")
-    public SecurityFilterChain simpleFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authz -> authz
-                .anyRequest().permitAll()
-            )
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .formLogin(AbstractHttpConfigurer::disable)
-            .oauth2ResourceServer(AbstractHttpConfigurer::disable);
-        
-        return http.build();
-    }
-    
-    @Bean
-    @Profile("!test")
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withJwkSetUri("http://localhost:8080/auth/realms/orders/protocol/openid-connect/certs")
                 .build();
     }
-    
+
     @Bean
-    @Profile({"!simple", "!test"})
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));

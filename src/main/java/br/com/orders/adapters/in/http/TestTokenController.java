@@ -17,7 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/test")
-@Profile("simple")
+//@Profile("simple")
 @Slf4j
 @Tag(name = "Test", description = "Test utilities for development")
 public class TestTokenController {
