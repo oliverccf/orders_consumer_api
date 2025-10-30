@@ -1,0 +1,226 @@
+{
+	"info": {
+		"_postman_id": "order-service-collection",
+		"name": "Order Service API",
+		"description": "Colecao Postman para testes da API do Order Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Get Test Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('auth_token', jsonData.token);",
+									"    console.log('Token armazenado na variavel auth_token');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/test/token",
+							"host": ["{{base_url}}"],
+							"path": ["test", "token"]
+						},
+						"description": "Obtem um token JWT de teste. Funciona apenas no perfil 'simple'. Armazena o token na variavel de ambiente auth_token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. RabbitMQ - Enviar Mensagem",
+			"item": [
+				{
+					"name": "Send Order Message",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"if (!pm.environment.get('correlation_id')) {",
+									"    pm.environment.set('correlation_id', pm.variables.replaceIn('{{$randomUUID}}'));",
+									"}",
+									"if (!pm.environment.get('external_id')) {",
+									"    pm.environment.set('external_id', 'EXT-' + pm.variables.replaceIn('{{$randomInt}}'));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200 or 202', function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});",
+									"console.log('Mensagem enviada para RabbitMQ com sucesso');",
+									"console.log('External ID: ' + pm.environment.get('external_id'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{"key": "username", "value": "{{rabbitmq_user}}", "type": "string"},
+								{"key": "password", "value": "{{rabbitmq_password}}", "type": "string"}
+							]
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"properties\": {},\n    \"routing_key\": \"order.created\",\n    \"payload\": \"{\\\"externalId\\\":\\\"{{external_id}}\\\",\\\"correlationId\\\":\\\"{{correlation_id}}\\\",\\\"items\\\":[{\\\"productId\\\":\\\"PROD-001\\\",\\\"productName\\\":\\\"Product Test 1\\\",\\\"unitPrice\\\":10.50,\\\"quantity\\\":2},{\\\"productId\\\":\\\"PROD-002\\\",\\\"productName\\\":\\\"Product Test 2\\\",\\\"unitPrice\\\":5.25,\\\"quantity\\\":1}]}\",\n    \"payload_encoding\": \"string\"\n}"
+						},
+						"url": {
+							"raw": "http://{{rabbitmq_host}}/api/exchanges/%2F/orders.incoming.ex/publish",
+							"protocol": "http",
+							"host": ["{{rabbitmq_host}}"],
+							"path": ["api", "exchanges", "%2F", "orders.incoming.ex", "publish"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. Orders - Consultar",
+			"item": [
+				{
+					"name": "List Orders",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"if (jsonData.content && jsonData.content.length > 0) {",
+									"    pm.environment.set('order_id', jsonData.content[0].id);",
+									"    pm.environment.set('order_version', jsonData.content[0].version);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/orders?status=AVAILABLE_FOR_B&page=0&size=20",
+							"host": ["{{base_url}}"],
+							"path": ["orders"],
+							"query": [
+								{"key": "status", "value": "AVAILABLE_FOR_B"},
+								{"key": "page", "value": "0"},
+								{"key": "size", "value": "20"}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"var jsonData = pm.response.json();",
+									"pm.environment.set('order_version', jsonData.version);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/orders/{{order_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["orders", "{{order_id}}"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Acknowledge Order",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{auth_token}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [
+							{"key": "If-Match", "value": "{{order_version}}"}
+						],
+						"url": {
+							"raw": "{{base_url}}/orders/{{order_id}}/ack",
+							"host": ["{{base_url}}"],
+							"path": ["orders", "{{order_id}}", "ack"]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/actuator/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["actuator", "health"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "base_url", "value": "http://localhost:8080/api/v1", "type": "string"},
+		{"key": "rabbitmq_host", "value": "localhost:15672", "type": "string"},
+		{"key": "rabbitmq_user", "value": "guest", "type": "string"},
+		{"key": "rabbitmq_password", "value": "guest", "type": "string"}
+	]
+}
+

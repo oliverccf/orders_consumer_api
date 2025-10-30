@@ -1,0 +1,78 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: order-service
+  
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/order_br
+      auto-index-creation: true
+  
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    listener:
+      simple:
+        acknowledge-mode: manual
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000ms
+          max-interval: 10000ms
+          multiplier: 2.0
+  
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080/auth/realms/orders}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8080/auth/realms/orders/protocol/openid-connect/certs}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    br.com.orders: DEBUG
+    org.springframework.amqp: INFO
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+# Custom application properties
+app:
+  rabbitmq:
+    queues:
+      incoming: orders.incoming.q
+      dlq: orders.incoming.dlq
+    exchanges:
+      incoming: orders.incoming.ex
+  mongodb:
+    collection:
+      orders: orders
+  security:
+    jwt:
+      required-scopes:
+        read: orders:read
+        ack: orders:ack

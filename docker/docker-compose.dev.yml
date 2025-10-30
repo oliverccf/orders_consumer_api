@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: order-service-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: orders
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/init-mongo-rs.sh:/docker-entrypoint-initdb.d/init-mongo-rs.sh:ro
+    command: mongod --replSet rs0 --bind_ip_all
+    networks:
+      - order-service-network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: order-service-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - order-service-network
+
+  order-service:
+    build: .
+    container_name: order-service-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://admin:password@mongodb:27017/orders?authSource=admin
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
+      JWT_ISSUER_URI: http://localhost:8080/auth/realms/orders
+      JWT_JWK_SET_URI: http://localhost:8080/auth/realms/orders/protocol/openid-connect/certs
+    depends_on:
+      - mongodb
+      - rabbitmq
+    networks:
+      - order-service-network
+    volumes:
+      - ./logs:/app/logs
+
+volumes:
+  mongodb_data:
+  rabbitmq_data:
+
+networks:
+  order-service-network:
+    driver: bridge

@@ -1,0 +1,51 @@
+# New Relic Agent Configuration
+
+# Application name
+app_name: Order Service
+
+# License key (set via environment variable NEW_RELIC_LICENSE_KEY)
+license_key: ${NEW_RELIC_LICENSE_KEY}
+
+# Logging
+log_level: info
+log_file_path: logs/newrelic.log
+
+# Distributed tracing
+distributed_tracing:
+  enabled: true
+
+# Transaction tracing
+transaction_tracer:
+  enabled: true
+  record_sql: obfuscated
+  explain_threshold: 0.5
+
+# Error collection
+error_collector:
+  enabled: true
+  ignore_status_codes: 404
+
+# Browser monitoring
+browser_monitoring:
+  auto_instrument: false
+
+# Application logging
+application_logging:
+  enabled: true
+  forwarding:
+    enabled: true
+    max_samples_stored: 10000
+  metrics:
+    enabled: true
+  local_decorating:
+    enabled: false
+
+# Custom attributes
+attributes:
+  enabled: true
+  include:
+    - request.parameters.*
+    - request.headers.*
+  exclude:
+    - request.headers.cookie
+    - request.headers.authorization

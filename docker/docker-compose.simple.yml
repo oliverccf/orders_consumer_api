@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: order-service-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: orders
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - order-service-network
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: order-service-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - order-service-network
+
+volumes:
+  mongodb_data:
+  rabbitmq_data:
+
+networks:
+  order-service-network:
+    driver: bridge
