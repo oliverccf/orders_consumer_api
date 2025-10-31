@@ -1,5 +1,6 @@
 package br.com.orders.adapters.in.http.mapper;
 
+import br.com.orders.adapters.in.http.dto.OrderItemResponse;
 import br.com.orders.adapters.in.http.dto.OrderResponse;
 import br.com.orders.domain.model.Order;
 import br.com.orders.domain.model.OrderItem;
@@ -17,7 +18,7 @@ public interface OrderResponseMapper {
     
     OrderResponse toResponse(Order order);
     
-    List<OrderResponse.OrderItemResponse> mapItems(List<OrderItem> items);
+    List<OrderItemResponse> mapItems(List<OrderItem> items);
     
-    OrderResponse.OrderItemResponse mapItem(OrderItem item);
+    OrderItemResponse mapItem(OrderItem item);
 }

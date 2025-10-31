@@ -36,7 +36,7 @@ public class TestSecurityConfig {
     @Primary
     public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .anonymous(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authz -> authz

@@ -10,30 +10,17 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Builder(toBuilder = true)
-@NoArgsConstructor
-@AllArgsConstructor
-public class OrderResponse {
-    private String id;
-    private String externalId;
-    private OrderStatus status;
-    private List<OrderItemResponse> items;
-    private BigDecimal totalAmount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String correlationId;
-    private Long version;
-    
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class OrderItemResponse {
-        private String productId;
-        private String productName;
-        private BigDecimal unitPrice;
-        private Integer quantity;
-        private BigDecimal totalPrice;
-    }
+public record OrderResponse (
+     String id,
+     String externalId,
+     OrderStatus status,
+     List<OrderItemResponse> items,
+     BigDecimal totalAmount,
+     LocalDateTime createdAt,
+     LocalDateTime updatedAt,
+     String correlationId,
+     Long version
+) {
+
 }

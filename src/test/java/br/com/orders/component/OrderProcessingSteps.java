@@ -232,18 +232,18 @@ public class OrderProcessingSteps extends ComponentTestBase {
     @Then("the order should be retrieved successfully from the API")
     public void theOrderShouldBeRetrievedSuccessfullyFromTheAPI() {
         assertThat(apiOrderResponse).isNotNull();
-        assertThat(apiOrderResponse.getId()).isEqualTo(databaseOrder.getId());
-        assertThat(apiOrderResponse.getExternalId()).isEqualTo(externalId);
-        assertThat(apiOrderResponse.getStatus()).isEqualTo(OrderStatus.AVAILABLE_FOR_B);
+        assertThat(apiOrderResponse.id()).isEqualTo(databaseOrder.getId());
+        assertThat(apiOrderResponse.externalId()).isEqualTo(externalId);
+        assertThat(apiOrderResponse.status()).isEqualTo(OrderStatus.AVAILABLE_FOR_B);
     }
     
     @And("the API response should match the order in the database")
     public void theAPIResponseShouldMatchTheOrderInTheDatabase() {
-        assertThat(apiOrderResponse.getExternalId()).isEqualTo(databaseOrder.getExternalId());
-        assertThat(apiOrderResponse.getCorrelationId()).isEqualTo(databaseOrder.getCorrelationId());
-        assertThat(apiOrderResponse.getStatus()).isEqualTo(databaseOrder.getStatus());
-        assertThat(apiOrderResponse.getTotalAmount()).isEqualByComparingTo(databaseOrder.getTotalAmount());
-        assertThat(apiOrderResponse.getItems()).hasSize(databaseOrder.getItems().size());
-        assertThat(apiOrderResponse.getVersion()).isEqualTo(databaseOrder.getVersion());
+        assertThat(apiOrderResponse.externalId()).isEqualTo(databaseOrder.getExternalId());
+        assertThat(apiOrderResponse.correlationId()).isEqualTo(databaseOrder.getCorrelationId());
+        assertThat(apiOrderResponse.status()).isEqualTo(databaseOrder.getStatus());
+        assertThat(apiOrderResponse.totalAmount()).isEqualByComparingTo(databaseOrder.getTotalAmount());
+        assertThat(apiOrderResponse.items()).hasSize(databaseOrder.getItems().size());
+        assertThat(apiOrderResponse.version()).isEqualTo(databaseOrder.getVersion());
     }
 }
