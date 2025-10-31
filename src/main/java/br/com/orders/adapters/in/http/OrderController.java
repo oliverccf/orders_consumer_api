@@ -36,7 +36,6 @@ public class OrderController {
     private final OrderResponseMapper orderResponseMapper;
     
     @GetMapping
-    // @PreAuthorize("hasAuthority('SCOPE_orders:read')")
     @Operation(summary = "List orders by status", description = "Retrieve orders filtered by status")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Orders retrieved successfully"),
@@ -58,7 +57,6 @@ public class OrderController {
     }
     
     @GetMapping("/{id}")
-    // @PreAuthorize("hasAuthority('SCOPE_orders:read')")
     @Operation(summary = "Get order by ID", description = "Retrieve a specific order by its ID")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Order retrieved successfully"),
@@ -79,7 +77,7 @@ public class OrderController {
             return ResponseEntity.notFound().build();
         }
         
-        OrderResponse response = orderResponseMapper.toResponse(order.get());
+        var response = orderResponseMapper.toResponse(order.get());
         return ResponseEntity.ok(response);
     }
     

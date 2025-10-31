@@ -15,8 +15,8 @@ public class OrderItem {
     private Integer quantity;
     private BigDecimal totalPrice;
     
-    public static OrderItem create(String productId, String productName, BigDecimal unitPrice, Integer quantity) {
-        BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
+    public static OrderItem create(final String productId, final String productName, final BigDecimal unitPrice, final Integer quantity) {
+        var totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
         
         return OrderItem.builder()
                 .productId(productId)

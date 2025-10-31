@@ -18,7 +18,7 @@ public class ListOrdersService {
     
     private final OrderRepository orderRepository;
     
-    public Page<Order> listOrdersByStatus(OrderStatus status, Pageable pageable) {
+    public Page<Order> listOrdersByStatus(final OrderStatus status, final Pageable pageable) {
         log.debug("Listing orders with status: {} and page: {}", status, pageable);
         
         Page<Order> orders = orderRepository.findByStatusOrderByUpdatedAtDesc(status, pageable);
@@ -27,7 +27,7 @@ public class ListOrdersService {
         return orders;
     }
     
-    public Optional<Order> findOrderById(String orderId) {
+    public Optional<Order> findOrderById(final String orderId) {
         log.debug("Finding order by id: {}", orderId);
         
         Optional<Order> order = orderRepository.findById(orderId);
@@ -41,7 +41,7 @@ public class ListOrdersService {
         return order;
     }
     
-    public Optional<Order> findOrderByExternalId(String externalId) {
+    public Optional<Order> findOrderByExternalId(final String externalId) {
         log.debug("Finding order by external id: {}", externalId);
         
         Optional<Order> order = orderRepository.findByExternalId(externalId);

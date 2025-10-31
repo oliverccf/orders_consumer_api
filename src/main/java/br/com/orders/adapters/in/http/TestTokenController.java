@@ -3,7 +3,6 @@ package br.com.orders.adapters.in.http;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/test")
-//@Profile("simple")
 @Slf4j
 @Tag(name = "Test", description = "Test utilities for development")
 public class TestTokenController {

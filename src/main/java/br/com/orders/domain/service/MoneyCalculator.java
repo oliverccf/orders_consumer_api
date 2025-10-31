@@ -12,10 +12,10 @@ import java.util.List;
 @Slf4j
 public class MoneyCalculator {
     
-    public BigDecimal calculateOrderTotal(List<OrderItem> items) {
+    public BigDecimal calculateOrderTotal(final List<OrderItem> items) {
         log.debug("Calculating total for {} items", items.size());
         
-        BigDecimal total = items.stream()
+        var total = items.stream()
                 .map(OrderItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         
@@ -23,12 +23,12 @@ public class MoneyCalculator {
         return total;
     }
     
-    public Order calculateAndUpdateOrder(Order order) {
+    public Order calculateAndUpdateOrder(final Order order) {
         log.debug("Calculating total for order: {}", order.getId());
         
-        BigDecimal total = calculateOrderTotal(order.getItems());
+        var total = calculateOrderTotal(order.getItems());
         
-        Order updatedOrder = order.withTotalAmount(total)
+        var updatedOrder = order.withTotalAmount(total)
                 .withUpdatedAt(java.time.LocalDateTime.now());
         
         log.debug("Updated order {} with total: {}", order.getId(), total);

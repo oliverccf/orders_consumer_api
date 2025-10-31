@@ -18,7 +18,7 @@ public class AckOrderService {
     private final OrderRepository orderRepository;
     
     @Transactional
-    public Order acknowledgeOrder(String orderId, Long expectedVersion) {
+    public Order acknowledgeOrder(final String orderId, final Long expectedVersion) {
         log.info("Acknowledging order: {} with expected version: {}", orderId, expectedVersion);
         
         Optional<Order> orderOpt = orderRepository.findById(orderId);
@@ -53,19 +53,19 @@ public class AckOrderService {
     }
     
     public static class OrderNotFoundException extends RuntimeException {
-        public OrderNotFoundException(String message) {
+        public OrderNotFoundException(final String message) {
             super(message);
         }
     }
     
     public static class InvalidOrderStatusException extends RuntimeException {
-        public InvalidOrderStatusException(String message) {
+        public InvalidOrderStatusException(final String message) {
             super(message);
         }
     }
     
     public static class OptimisticLockingException extends RuntimeException {
-        public OptimisticLockingException(String message) {
+        public OptimisticLockingException(final String message) {
             super(message);
         }
     }

@@ -38,7 +38,7 @@ public class Order {
     @Version
     private Long version;
     
-    public static Order create(String externalId, List<OrderItem> items, String correlationId) {
+    public static Order create(final String externalId, final List<OrderItem> items, final String correlationId) {
         return Order.builder()
                 .id(UUID.randomUUID().toString())
                 .externalId(externalId)
@@ -51,17 +51,7 @@ public class Order {
                 .version(0L)
                 .build();
     }
-    
-    public Order calculateTotal() {
-        BigDecimal total = items.stream()
-                .map(OrderItem::getTotalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        return this.withTotalAmount(total)
-                .withStatus(OrderStatus.AVAILABLE_FOR_B)
-                .withUpdatedAt(LocalDateTime.now());
-    }
-    
+
     public Order acknowledge() {
         return this.withStatus(OrderStatus.ACKNOWLEDGED)
                 .withUpdatedAt(LocalDateTime.now());

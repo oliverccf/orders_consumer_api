@@ -17,18 +17,18 @@ public class CalculateOrderService {
     private final MoneyCalculator moneyCalculator;
     
     @Transactional
-    public Order processOrder(Order order) {
+    public Order processOrder(final Order order) {
         log.info("Processing order: {} with externalId: {}", order.getId(), order.getExternalId());
         
         try {
             // Calculate total using domain service
-            Order calculatedOrder = moneyCalculator.calculateAndUpdateOrder(order);
+            var calculatedOrder = moneyCalculator.calculateAndUpdateOrder(order);
             
             // Update status to available for Product B
-            Order processedOrder = calculatedOrder.withStatus(OrderStatus.AVAILABLE_FOR_B);
+            var processedOrder = calculatedOrder.withStatus(OrderStatus.AVAILABLE_FOR_B);
             
             // Save with upsert to handle idempotency
-            Order savedOrder = orderRepository.upsert(processedOrder);
+            var savedOrder = orderRepository.upsert(processedOrder);
             
             log.info("Successfully processed order: {} with total: {}", 
                     savedOrder.getId(), savedOrder.getTotalAmount());
@@ -39,7 +39,7 @@ public class CalculateOrderService {
             log.error("Error processing order: {} - {}", order.getId(), e.getMessage(), e);
             
             // Mark order as failed
-            Order failedOrder = order.withStatus(OrderStatus.FAILED);
+            var failedOrder = order.withStatus(OrderStatus.FAILED);
             orderRepository.save(failedOrder);
             
             throw new OrderProcessingException("Failed to process order: " + order.getId(), e);
@@ -47,7 +47,7 @@ public class CalculateOrderService {
     }
     
     public static class OrderProcessingException extends RuntimeException {
-        public OrderProcessingException(String message, Throwable cause) {
+        public OrderProcessingException(final String message, final Throwable cause) {
             super(message, cause);
         }
     }
