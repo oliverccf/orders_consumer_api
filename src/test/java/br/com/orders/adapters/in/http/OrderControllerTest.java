@@ -82,7 +82,6 @@ class OrderControllerTest {
     void shouldListOrdersSuccessfully() throws Exception {
         // Given
         Page<Order> orderPage = new PageImpl<>(List.of(testOrder), PageRequest.of(0, 20), 1);
-        Page<OrderResponse> responsePage = new PageImpl<>(List.of(testOrderResponse), PageRequest.of(0, 20), 1);
         
         when(listOrdersService.listOrdersByStatus(eq(OrderStatus.AVAILABLE_FOR_B), any()))
                 .thenReturn(orderPage);
@@ -163,7 +162,7 @@ class OrderControllerTest {
     
     @Test
     void shouldReturnUnauthorizedWithoutToken() throws Exception {
-        // When & Then
+        // When & Then - Security should block before reaching controller
         mockMvc.perform(get("/orders"))
                 .andExpect(status().isUnauthorized());
     }
